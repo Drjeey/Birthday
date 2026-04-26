@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════ */
+    :root {
+      --bg:           #08050f;
+      --glass:        rgba(255,255,255,0.055);
+      --glass-h:      rgba(255,255,255,0.09);
+      --glass-a:      rgba(255,255,255,0.12);
+      --border:       rgba(255,255,255,0.10);
+      --border-glow:  rgba(255,105,180,0.35);
+
+      --pink:         #ff4fa0;
+      --pink-soft:    #ff85bc;
+      --gold:         #f5c842;
+      --gold-soft:    #ffe09a;
+      --lavender:     #c77dff;
+      --rose:         #ff2d75;
+      --green:        #3ddc84;
+
+      --txt:          rgba(255,255,255,0.92);
+      --txt-dim:      rgba(255,255,255,0.50);
+      --txt-muted:    rgba(255,255,255,0.28);
+
+      --font-d: 'Cormorant Garamond', serif;
+      --font-b: 'Outfit', sans-serif;
+
+      --spring: cubic-bezier(0.34,1.56,0.64,1);
+      --slide:  cubic-bezier(0.76,0,0.24,1);
+      --out:    cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html, body {
+      width:100%; height:100%;
+      overflow:hidden;
+      background: var(--bg);
+      color: var(--txt);
+      font-family: var(--font-b);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ul  { list-style:none; }
+    button { background:none; border:none; cursor:pointer; color:inherit; font-family:inherit; }
+    input  { border:none; outline:none; background:transparent; font-family:inherit; color:inherit; }
+
+    /* ══════════════════════════════════════
+       BACKGROUND
+    ══════════════════════════════════════ */
+    .scene {
+      position:fixed; inset:0; z-index:0; overflow:hidden;
+    }
+    /* grain */
+    .scene::after {
+      content:'';
+      position:absolute; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size:180px;
+      opacity:0.55;
+      mix-blend-mode:overlay;
+      pointer-events:none;
+    }
+    .orb {
+      position:absolute; border-radius:50%;
+      filter:blur(90px); will-change:transform;
+    }
+    .o1 { width:420px; height:420px; background:radial-gradient(circle,#7b1fa2,transparent 70%); top:-160px; left:-120px; animation:d1 18s ease-in-out infinite alternate; opacity:.6; }
+    .o2 { width:360px; height:360px; background:radial-gradient(circle,#c2185b,transparent 70%); bottom:-140px; right:-100px; animation:d2 22s ease-in-out infinite alternate; opacity:.55; }
+    .o3 { width:250px; height:250px; background:radial-gradient(circle,#f5c842,transparent 70%); top:40%; left:60%; animation:d3 14s ease-in-out infinite alternate; opacity:.18; }
+    @keyframes d1 { from{transform:translate(0,0) scale(1)} to{transform:translate(80px,100px) scale(1.15)} }
+    @keyframes d2 { from{transform:translate(0,0)} to{transform:translate(-60px,-80px) scale(1.1)} }
+    @keyframes d3 { from{transform:translate(0,0)} to{transform:translate(-90px,60px) scale(1.3)} }
+
+    /* confetti */
+    .confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-20px; border-radius:2px; opacity:0; animation:fall linear infinite; }
+    @keyframes fall {
+      0%  { transform:translateY(-20px) rotate(0deg); opacity:1; }
+      80% { opacity:.8; }
+      100%{ transform:translateY(110vh) rotate(720deg); opacity:0; }
+    }
+
+    /* ══════════════════════════════════════
+       APP SHELL
+    ══════════════════════════════════════ */
+    #app {
+      position:relative; z-index:1;
+      width:100%; max-width:480px; height:100dvh;
+      margin:0 auto; overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+
+    /* ══════════════════════════════════════
+       SPLASH
+    ══════════════════════════════════════ */
+    #splash {
+      position:absolute; inset:0; z-index:300;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center;
+      padding:40px 32px;
+      background:rgba(8,5,15,0.85);
+      backdrop-filter:blur(16px);
+      transition: opacity .8s var(--out), transform .8s var(--out);
+    }
+    #splash.exit { opacity:0; transform:scale(1.04); pointer-events:none; }
+
+    .splash-icon { font-size:62px; line-height:1; margin-bottom:28px; animation:float 3s ease-in-out infinite; filter:drop-shadow(0 0 22px rgba(255,105,180,.65)); }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+    .splash-eyebrow { font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--pink-soft); margin-bottom:12px; }
+    .splash-title   { font-family:var(--font-d); font-size:clamp(2.4rem,9vw,3.2rem); font-weight:300; font-style:italic; line-height:1.15; background:linear-gradient(135deg,#fff 20%,var(--pink-soft) 55%,var(--gold-soft) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .splash-name    { font-family:var(--font-d); font-size:clamp(2.8rem,11vw,4rem); font-weight:600; line-height:1; margin-bottom:28px; background:linear-gradient(135deg,var(--gold-soft),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 0 18px rgba(245,200,66,.35)); }
+    .splash-desc    { font-size:15px; font-weight:300; color:var(--txt-dim); line-height:1.6; margin-bottom:48px; max-width:280px; }
+
+    .start-btn {
+      position:relative; padding:17px 48px;
+      border-radius:60px; font-size:15px; font-weight:600;
+      letter-spacing:.04em; color:#fff;
+      background:linear-gradient(135deg,var(--rose),var(--lavender));
+      box-shadow:0 0 0 1px rgba(255,255,255,.12),0 8px 32px rgba(255,45,117,.4),0 2px 8px rgba(0,0,0,.4);
+      transition:transform .2s var(--spring), box-shadow .2s;
+      overflow:hidden;
+    }
+    .start-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.15),transparent); border-radius:inherit; }
+    .start-btn:active { transform:scale(.94); box-shadow:0 4px 16px rgba(255,45,117,.3); }
+    .start-btn .badge-pill {
+      position:absolute; top:-7px; right:-7px;
+      width:22px; height:22px; border-radius:50%;
+      background:var(--gold); color:#000;
+      font-size:11px; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 0 10px rgba(245,200,66,.6);
+    }
+
+    /* ══════════════════════════════════════
+       MUSIC PILL
+    ══════════════════════════════════════ */
+    .music-pill {
+      position:absolute; top:max(20px,env(safe-area-inset-top)); right:16px;
+      z-index:200; display:flex; align-items:center; gap:8px;
+      padding:8px 14px 8px 10px; border-radius:60px;
+      background:var(--glass); border:1px solid var(--border);
+      backdrop-filter:blur(14px); cursor:pointer;
+      transition:background .2s, box-shadow .2s;
+    }
+    .music-pill:hover { background:var(--glass-h); }
+    .music-pill.on { border-color:rgba(255,79,160,.4); box-shadow:0 0 14px rgba(255,79,160,.2); }
+
+    .disc { width:28px; height:28px; border-radius:50%; background:conic-gradient(var(--pink),var(--lavender),var(--pink)); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .disc::after { content:''; width:8px; height:8px; border-radius:50%; background:var(--bg); }
+    .music-pill.on .disc { animation:spin-disc 3s linear infinite; }
+    @keyframes spin-disc { to{transform:rotate(360deg)} }
+
+    .music-label { font-size:12px; font-weight:500; color:var(--txt-dim); white-space:nowrap; max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+    .music-pill.on .music-label { color:var(--pink-soft); }
+
+    .eq { display:flex; align-items:flex-end; gap:2px; height:14px; opacity:0; transition:opacity .3s; }
+    .music-pill.on .eq { opacity:1; }
+    .eq-bar { width:3px; border-radius:2px; background:var(--pink); animation:eq 0.8s ease-in-out infinite; }
+    .eq-bar:nth-child(1){height:6px;  animation-delay:0s}
+    .eq-bar:nth-child(2){height:12px; animation-delay:.15s}
+    .eq-bar:nth-child(3){height:8px;  animation-delay:.05s}
+    .eq-bar:nth-child(4){height:14px; animation-delay:.2s}
+    .eq-bar:nth-child(5){height:5px;  animation-delay:.1s}
+    @keyframes eq { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(.25)} }
+
+    /* ══════════════════════════════════════
+       SCREENS
+    ══════════════════════════════════════ */
+    .screen {
+      position:absolute; inset:0; display:flex; flex-direction:column;
+      will-change:transform; transition:transform .48s var(--slide);
+    }
+    #list-screen {
+      transform:translateX(0);
+      padding-top:max(80px,calc(env(safe-area-inset-top) + 72px));
+      padding-bottom:max(20px,env(safe-area-inset-bottom));
+    }
+    #chat-screen { transform:translateX(100%); background:rgba(8,5,15,.5); }
+    #list-screen.off   { transform:translateX(-100%); pointer-events:none; }
+    #chat-screen.on    { transform:translateX(0); }
+
+    /* ══════════════════════════════════════
+       LIST SCREEN HEADER
+    ══════════════════════════════════════ */
+    .list-header { padding:0 20px 18px; }
+    .list-eyebrow {
+      font-size:11px; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+      color:var(--pink-soft); margin-bottom:6px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .list-eyebrow::before { content:''; width:20px; height:1px; background:var(--pink-soft); opacity:.5; }
+    .list-title { font-family:var(--font-d); font-size:2rem; font-weight:300; font-style:italic; }
+
+    /* search */
+    .search-bar {
+      display:flex; align-items:center; gap:10px;
+      margin:0 16px 16px; padding:0 14px; height:44px;
+      background:var(--glass); border:1px solid var(--border);
+      border-radius:14px; backdrop-filter:blur(8px);
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .search-bar:focus-within { border-color:rgba(255,79,160,.35); box-shadow:0 0 0 3px rgba(255,79,160,.08); }
+    .search-bar svg { color:var(--txt-muted); flex-shrink:0; }
+    .search-bar input { flex:1; font-size:14px; }
+    .search-bar input::placeholder { color:var(--txt-muted); }
+
+    /* contact list scroll */
+    .contacts-list { flex:1; overflow-y:auto; padding:0 14px; scrollbar-width:none; }
+    .contacts-list::-webkit-scrollbar { display:none; }
+
+    /* ── Chat Item ── */
+    .chat-item {
+      display:flex; align-items:center; gap:14px;
+      padding:13px 14px; border-radius:18px; margin-bottom:10px;
+      cursor:pointer; position:relative;
+      background:var(--glass); border:1px solid var(--border);
+      backdrop-filter:blur(10px);
+      transition:background .18s, border-color .18s, transform .18s var(--spring), box-shadow .18s;
+      animation:item-in .45s var(--spring) both;
+    }
+    @keyframes item-in { from{opacity:0;transform:translateX(-18px) scale(.97)} to{opacity:1;transform:none} }
+    .chat-item:hover  { background:var(--glass-h); border-color:var(--border-glow); box-shadow:0 4px 24px rgba(255,79,160,.10); }
+    .chat-item:active { transform:scale(.97); background:var(--glass-a); }
+    .chat-item.unread::before {
+      content:''; position:absolute; left:0; top:20%; bottom:20%;
+      width:3px; border-radius:3px;
+      background:linear-gradient(to bottom,var(--pink),var(--lavender));
+      box-shadow:0 0 8px var(--pink);
+    }
+
+    /* Avatar */
+    .av-wrap { position:relative; flex-shrink:0; }
+    .av {
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-d); font-size:22px; font-weight:600; overflow:hidden;
+    }
+    .av img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+    .av-ring {
+      position:absolute; inset:-2px; border-radius:50%;
+      background:conic-gradient(var(--pink),var(--lavender),var(--gold),var(--pink));
+      z-index:-1; animation:ring-rot 6s linear infinite;
+    }
+    @keyframes ring-rot { to{transform:rotate(360deg)} }
+    .av-online {
+      position:absolute; bottom:1px; right:1px;
+      width:13px; height:13px; border-radius:50%;
+      background:var(--green); border:2px solid var(--bg);
+      box-shadow:0 0 8px rgba(61,220,132,.7);
+    }
+
+    /* Chat meta */
+    .chat-meta { flex:1; min-width:0; }
+    .chat-meta-top { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:3px; }
+    .chat-meta-name { font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .chat-meta-time { font-size:11px; color:var(--txt-muted); flex-shrink:0; margin-left:8px; }
+    .chat-meta-preview { font-size:13px; font-weight:300; color:var(--txt-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .vtag { display:inline-flex; align-items:center; gap:4px; color:var(--pink-soft); font-size:12px; font-weight:500; }
+    .rel-tag { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; padding:2px 8px; border-radius:20px; margin-top:4px; display:inline-block; }
+    .unread-badge { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,var(--pink),var(--rose)); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-left:6px; box-shadow:0 0 10px rgba(255,79,160,.5); }
+
+    /* ══════════════════════════════════════
+       CHAT SCREEN
+    ══════════════════════════════════════ */
+    .chat-header {
+      display:flex; align-items:center; gap:10px;
+      padding:max(16px,env(safe-area-inset-top)) 14px 14px;
+      background:rgba(8,5,15,.7); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border); flex-shrink:0; z-index:10; position:relative;
+    }
+    .back-btn {
+      width:40px; height:40px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--glass); border:1px solid var(--border); color:var(--pink-soft); flex-shrink:0;
+      transition:background .15s, transform .15s var(--spring);
+    }
+    .back-btn:active { transform:scale(.88); background:var(--glass-a); }
+    .ch-peer { flex:1; min-width:0; }
+    .ch-name { font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ch-status { font-size:12px; color:var(--green); display:flex; align-items:center; gap:5px; margin-top:1px; }
+    .status-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:blink 2.5s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* Messages */
+    .msg-area {
+      flex:1; overflow-y:auto;
+      padding:20px 16px; display:flex; flex-direction:column; gap:12px;
+      scrollbar-width:none;
+      -webkit-mask-image:linear-gradient(to bottom,transparent,black 40px,black calc(100% - 40px),transparent);
+      mask-image:linear-gradient(to bottom,transparent,black 40px,black calc(100% - 40px),transparent);
+    }
+    .msg-area::-webkit-scrollbar { display:none; }
+
+    .date-sep {
+      text-align:center; font-size:11px; font-weight:500; letter-spacing:.08em;
+      color:var(--txt-muted); padding:4px 14px;
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      border-radius:20px; align-self:center; margin:4px 0;
+    }
+
+    .bubble { max-width:82%; animation:pop .35s var(--spring) both; }
+    @keyframes pop { from{opacity:0;transform:scale(.92) translateY(8px)} to{opacity:1;transform:none} }
+    .bubble.them { align-self:flex-start; }
+    .bubble.me   { align-self:flex-end; }
+
+    .btext {
+      padding:12px 16px; border-radius:20px;
+      font-size:14px; line-height:1.55; font-weight:300;
+    }
+    .bubble.them .btext {
+      background:var(--glass); border:1px solid var(--border);
+      border-bottom-left-radius:4px; backdrop-filter:blur(10px);
+    }
+    .bubble.me .btext {
+      background:linear-gradient(135deg,rgba(255,79,160,.18),rgba(199,125,255,.14));
+      border:1px solid rgba(255,79,160,.22); border-bottom-right-radius:4px;
+    }
+    .bmeta { font-size:11px; color:var(--txt-muted); margin-top:4px; padding:0 4px; display:flex; align-items:center; gap:4px; }
+    .bubble.me .bmeta { flex-direction:row-reverse; }
+
+    /* Typing */
+    .typing {
+      align-self:flex-start; display:flex; align-items:center; gap:5px;
+      padding:12px 16px;
+      background:var(--glass); border:1px solid var(--border);
+      border-radius:20px; border-bottom-left-radius:4px;
+      animation:pop .3s var(--spring) both;
+    }
+    .tdot { width:7px; height:7px; border-radius:50%; background:var(--txt-muted); animation:bounce 1.2s ease-in-out infinite; }
+    .tdot:nth-child(2){animation-delay:.15s} .tdot:nth-child(3){animation-delay:.3s}
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
+
+    /* ══════════════════════════════════════
+       VIDEO CARD
+    ══════════════════════════════════════ */
+    .vcard {
+      width:min(300px,86vw); border-radius:18px; overflow:hidden;
+      border:1px solid rgba(255,79,160,.25); background:rgba(0,0,0,.55);
+      box-shadow:0 0 0 1px rgba(199,125,255,.12),0 12px 40px rgba(0,0,0,.6),0 0 24px rgba(255,79,160,.06);
+    }
+    .vcard-header {
+      display:flex; align-items:center; gap:10px; padding:10px 14px;
+      background:rgba(255,79,160,.07); border-bottom:1px solid rgba(255,79,160,.13);
+    }
+    .vcard-icon {
+      width:32px; height:32px; border-radius:50%;
+      background:rgba(255,79,160,.12); border:1px solid rgba(255,79,160,.28);
+      display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--pink);
+    }
+    .vcard-info { flex:1; min-width:0; }
+    .vcard-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .vcard-sub   { font-size:11px; color:var(--txt-dim); }
+
+    /* Custom player */
+    .player {
+      position:relative; width:100%; aspect-ratio:9/16;
+      background:#000; cursor:pointer; overflow:hidden;
+    }
+    .player video { width:100%; height:100%; object-fit:cover; display:block; }
+
+    .player-overlay {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.32); transition:opacity .25s;
+    }
+    .player.playing .player-overlay { opacity:0; }
+    .player.playing:active .player-overlay { opacity:1; }
+
+    .play-icon {
+      width:60px; height:60px; border-radius:50%;
+      background:rgba(0,0,0,.55); border:1.5px solid rgba(255,79,160,.6);
+      display:flex; align-items:center; justify-content:center; color:var(--pink-soft);
+      backdrop-filter:blur(6px); box-shadow:0 0 28px rgba(255,79,160,.45);
+      transition:transform .18s var(--spring);
+    }
+    .play-icon:active { transform:scale(.9); }
+
+    .player-ctrls {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:10px 12px; background:linear-gradient(to top,rgba(0,0,0,.75),transparent);
+      display:flex; align-items:center; gap:10px;
+      opacity:0; transition:opacity .25s;
+    }
+    .player:hover .player-ctrls,
+    .player.playing .player-ctrls { opacity:1; }
+
+    .prog {
+      flex:1; height:4px; border-radius:4px;
+      background:rgba(255,255,255,.2); cursor:pointer; position:relative;
+    }
+    .prog-fill {
+      height:100%; border-radius:4px;
+      background:linear-gradient(90deg,var(--pink),var(--lavender));
+      box-shadow:0 0 8px var(--pink); width:0%; position:relative;
+    }
+    .prog-fill::after {
+      content:''; position:absolute; right:-5px; top:50%; transform:translateY(-50%);
+      width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:0 0 6px var(--pink);
+    }
+    .time-lbl { font-size:10px; color:rgba(255,255,255,.7); font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .fs-btn { width:28px; height:28px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.7); flex-shrink:0; }
+
+    /* Reactions footer */
+    .vcard-footer {
+      padding:10px 14px; display:flex; align-items:center; gap:8px;
+      border-top:1px solid rgba(255,255,255,.07);
+    }
+    .react-btn {
+      display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:20px;
+      background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09);
+      font-size:13px; color:var(--txt-dim);
+      transition:background .15s, border-color .15s, transform .15s var(--spring);
+    }
+    .react-btn:active { transform:scale(.92); }
+    .react-btn.liked { background:rgba(255,79,160,.12); border-color:rgba(255,79,160,.35); color:var(--pink-soft); }
+    .react-count { font-size:12px; }
+    .save-btn {
+      display:flex; align-items:center; gap:5px; font-size:12px; color:var(--txt-muted);
+      padding:5px 8px; border-radius:20px; margin-left:auto;
+      transition:color .15s;
+    }
+    .save-btn:hover { color:var(--txt-dim); }
+
+    /* ══════════════════════════════════════
+       INPUT BAR
+    ══════════════════════════════════════ */
+    .input-bar {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 14px; padding-bottom:max(10px,env(safe-area-inset-bottom));
+      background:rgba(8,5,15,.7); border-top:1px solid var(--border);
+      backdrop-filter:blur(20px); flex-shrink:0;
+    }
+    .input-wrap {
+      flex:1; display:flex; align-items:center; gap:8px;
+      padding:0 14px; height:44px;
+      background:var(--glass); border:1px solid var(--border);
+      border-radius:22px; transition:border-color .2s, box-shadow .2s;
+    }
+    .input-wrap:focus-within { border-color:rgba(255,79,160,.35); box-shadow:0 0 0 3px rgba(255,79,160,.08); }
+    .input-wrap input { flex:1; font-size:14px; font-weight:300; }
+    .input-wrap input::placeholder { color:var(--txt-muted); }
+    .emoji-btn { font-size:18px; line-height:1; flex-shrink:0; }
+
+    .send-btn {
+      width:44px; height:44px; border-radius:50%;
+      background:linear-gradient(135deg,var(--rose),var(--lavender));
+      display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0;
+      box-shadow:0 0 16px rgba(255,45,117,.4);
+      transition:transform .18s var(--spring), box-shadow .18s;
+    }
+    .send-btn:active { transform:scale(.88); box-shadow:0 0 8px rgba(255,45,117,.2); }
+
+    /* ══════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════ */
+    .toast {
+      position:fixed; bottom:80px; left:50%;
+      transform:translateX(-50%) translateY(20px);
+      background:rgba(30,15,45,.95); border:1px solid rgba(255,79,160,.3);
+      border-radius:14px; padding:12px 20px; font-size:13px; font-weight:500;
+      white-space:nowrap; z-index:999; opacity:0; pointer-events:none;
+      backdrop-filter:blur(10px); box-shadow:0 8px 24px rgba(0,0,0,.5);
+      transition:opacity .25s, transform .25s var(--spring);
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    .hidden { display:none !important; }
+    :focus-visible { outline:2px solid var(--pink); outline-offset:2px; }
+
+    /* ══════════════════════════════════════
+       PLACEHOLDER STATES
+       Shown when no image / video is set yet
+    ══════════════════════════════════════ */
+    .av-placeholder {
+      width:100%; height:100%; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:inherit;
+    }
+
+    /* Video placeholder — shown when video src is empty */
+    .video-placeholder {
+      width:100%; aspect-ratio:9/16;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:12px;
+      background:rgba(0,0,0,0.4);
+      border-top:1px dashed rgba(255,79,160,0.3);
+      border-bottom:1px dashed rgba(255,79,160,0.3);
+      padding:24px;
+      text-align:center;
+    }
+    .video-placeholder .ph-icon {
+      width:56px; height:56px; border-radius:50%;
+      background:rgba(255,79,160,0.1);
+      border:1.5px dashed rgba(255,79,160,0.45);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--pink); font-size:22px;
+    }
+    .video-placeholder .ph-title {
+      font-size:13px; font-weight:600; color:var(--txt-dim);
+    }
+    .video-placeholder .ph-hint {
+      font-size:11px; color:var(--txt-muted); line-height:1.6; max-width:200px;
+    }
+    .video-placeholder code {
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:4px; padding:1px 6px;
+      font-size:10px; color:var(--pink-soft);
+      font-family:monospace;
+    }
+  </style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="scene">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="confetti-layer" id="confetti"></div>
+</div>
+
+<div id="app">
+  <!--
+    ╔══════════════════════════════════════════════════════╗
+    ║  🎵  BIRTHDAY SONG — swap the src below             ║
+    ║  Replace  YOUR-SONG-FILE.mp3  with your audio file  ║
+    ║  e.g.  src="assets/music/happy-birthday.mp3"        ║
+    ╚══════════════════════════════════════════════════════╝
+  -->
+  <audio id="bg-music" loop src="assets/music/Killorbeezbeatz &amp; Sthembiso Ntuli - Happy Birthday Beyonce (Official Audio).mp3"></audio>
+  <div class="toast" id="toast"></div>
+
+  <!-- ── SPLASH ── -->
+  <div id="splash">
+    <div class="splash-icon">🌸</div>
+    <p class="splash-eyebrow">A special message for</p>
+    <h1 class="splash-title">Happy Birthday,</h1>
+    <h2 class="splash-name" id="splash-name">Beautiful</h2>
+    <p class="splash-desc">The people who love you most have left something special here, just for you.</p>
+    <button class="start-btn" onclick="startExperience()" aria-label="Open your messages">
+      Open Messages
+      <span class="badge-pill" id="splash-badge" aria-label="unread messages">4</span>
+    </button>
+  </div>
+
+  <!-- MUSIC PILL -->
+  <button class="music-pill" id="music-pill" onclick="toggleMusic()" aria-label="Toggle background music">
+    <div class="disc"></div>
+    <span class="music-label">Birthday Melody</span>
+    <div class="eq">
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+    </div>
+  </button>
+
+  <!-- ── LIST SCREEN ── -->
+  <div class="screen" id="list-screen">
+    <div class="list-header">
+      <p class="list-eyebrow">Messages</p>
+      <h2 class="list-title">Loved Ones 💌</h2>
+    </div>
+
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" id="search-input" placeholder="Search messages…"
+             aria-label="Search conversations"
+             oninput="filterContacts(this.value)" />
+    </div>
+
+    <ul class="contacts-list" id="contacts-list" role="list"></ul>
+  </div>
+
+  <!-- ── CHAT SCREEN ── -->
+  <div class="screen" id="chat-screen">
+    <header class="chat-header">
+      <button class="back-btn" onclick="closeChat()" aria-label="Go back">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>
+
+      <div class="av-wrap" style="width:42px;height:42px;flex-shrink:0;">
+        <div class="av-ring"></div>
+        <div class="av" id="chat-av" style="width:42px;height:42px;font-size:16px;"></div>
+      </div>
+
+      <div class="ch-peer">
+        <p class="ch-name" id="chat-name">—</p>
+        <div class="ch-status">
+          <span class="status-dot"></span>
+          <span>Active now</span>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="shareChat()" aria-label="Share this chat">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Share
+      </button>
+    </header>
+
+    <div class="msg-area" id="msg-area" role="log" aria-live="polite"></div>
+
+    <div class="input-bar">
+      <div class="input-wrap">
+        <button class="emoji-btn" aria-label="Add emoji">🥰</button>
+        <input type="text" id="reply-input" placeholder="Send a reaction…" maxlength="140"
+               onkeydown="handleKey(event)" aria-label="Reply" />
+      </div>
+      <button class="send-btn" onclick="sendReply()" aria-label="Send reply">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA — swap names/videos/avatars here
+══════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════
+//  BIRTHDAY PERSON'S NAME  — shown on the splash screen
+// ══════════════════════════════════════════════════════════
+const BDAY_NAME = 'Your Name Here';   // ← swap with the birthday person's name
+
+// ══════════════════════════════════════════════════════════
+//  CONTACTS
+//  For each contact, replace the placeholder paths below:
+//
+//  avatar  →  path to a photo of that person
+//             e.g. "assets/images/vienna.jpg"
+//             Leave as "" if you have no photo (initials will show)
+//
+//  video   →  path to the video file for that chat
+//             e.g. "assets/videos/vienna.mp4"
+//
+//  vTitle  →  label shown above the video player
+//  vSub    →  subtitle (e.g. duration or description)
+//
+//  You can also edit the chat msgs[] text to customise
+//  what each person "says" before the video appears.
+// ══════════════════════════════════════════════════════════
+const CONTACTS = [
+  {
+    id: 1,
+    name: 'Vienna',
+    relation: 'Friend',
+    relColor: '#ff85bc',
+    initials: '🌸',
+    gradA: '#e91e8c', gradB: '#9c27b0',
+
+    // ── IMAGE PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the path to Vienna's photo
+    // Example: avatar: 'assets/images/vienna.jpg',
+    avatar: 'assets/images/Vienna.jpg',   // ← PUT VIENNA'S PHOTO PATH HERE
+
+    online: true,
+    time: '2m ago',
+    unread: 1,
+    msgs: [
+      { from:'them', text:'Vienna here!! Happy birthday gorgeous 🎉🌸', delay:0 },
+      { from:'them', text:'You deserve every single good thing coming your way today and always!', delay:500 },
+      { from:'them', text:'I made you a little something 👇', delay:900 },
+    ],
+
+    // ── VIDEO PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the path to Vienna's video
+    // Example: video: 'assets/videos/vienna.mp4',
+    video: 'assets/videos/Vienna.mp4',    // ← PUT VIENNA'S VIDEO PATH HERE
+    vTitle: 'Vienna\'s Birthday Message 🌸',
+    vSub: 'Personal Video',
+    reactions: { '❤️': 18, '🥰': 11 },
+  },
+
+  {
+    id: 2,
+    name: 'Makan',
+    relation: 'Friend',
+    relColor: '#c77dff',
+    initials: '⭐',
+    gradA: '#6a1b9a', gradB: '#283593',
+
+    // ── IMAGE PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the path to Makan's photo
+    // Example: avatar: 'assets/images/makan.jpg',
+    avatar: 'assets/images/Makan.jpg',   // ← PUT MAKAN'S PHOTO PATH HERE
+
+    online: true,
+    time: '5m ago',
+    unread: 1,
+    msgs: [
+      { from:'them', text:'Makan sending love!! 🥳✨', delay:0 },
+      { from:'them', text:'Another year of you being amazing — the world is better with you in it fr.', delay:500 },
+      { from:'them', text:'Watch this, I put it together just for you 🎬', delay:900 },
+    ],
+
+    // ── VIDEO PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the path to Makan's video
+    // Example: video: 'assets/videos/makan.mp4',
+    video: 'assets/videos/Makan.mp4',    // ← PUT MAKAN'S VIDEO PATH HERE
+    vTitle: 'Makan\'s Birthday Message ⭐',
+    vSub: 'Personal Video',
+    reactions: { '😭': 22, '🙌': 9 },
+  },
+
+  {
+    id: 3,
+    name: 'Grifins',
+    relation: 'Friend',
+    relColor: '#f5c842',
+    initials: '🔥',
+    gradA: '#f57f17', gradB: '#bf360c',
+
+    // ── IMAGE PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the path to Grifins' photo
+    // Example: avatar: 'assets/images/grifins.jpg',
+    avatar: 'assets/images/Grifins.jpg',   // ← PUT GRIFINS' PHOTO PATH HERE
+
+    online: true,
+    time: '10m ago',
+    unread: 1,
+    msgs: [
+      { from:'them', text:'GRIFINS IN THE BUILDING 🔥🎂🔥', delay:0 },
+      { from:'them', text:'You\'re that one person who makes everything more fun just by showing up. Happy birthday!', delay:500 },
+      { from:'them', text:'Check this out 👇 made it with love lol', delay:900 },
+    ],
+
+    // ── VIDEO PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the path to Grifins' video
+    // Example: video: 'assets/videos/grifins.mp4',
+    video: 'assets/videos/Grifins.mp4',    // ← PUT GRIFINS' VIDEO PATH HERE
+    vTitle: 'Grifins\' Birthday Message 🔥',
+    vSub: 'Personal Video',
+    reactions: { '😂': 34, '❤️': 15 },
+  },
+
+  {
+    id: 4,
+    name: 'Family',
+    relation: 'Family 💛',
+    relColor: '#3ddc84',
+    initials: '🏠',
+    gradA: '#1b5e20', gradB: '#0d47a1',
+
+    // ── IMAGE PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with a family group photo path
+    // Example: avatar: 'assets/images/family.jpg',
+    avatar: 'assets/images/Family.jpg',   // ← PUT FAMILY PHOTO PATH HERE
+
+    online: false,
+    time: '30m ago',
+    unread: 1,
+    msgs: [
+      { from:'them', text:'It\'s your Family here! We all got together just to say — Happy Birthday! 🎂💛', delay:0 },
+      { from:'them', text:'We are so incredibly proud of you and everything you\'ve become.', delay:500 },
+      { from:'them', text:'We made this together, just for you 🥹👇', delay:900 },
+    ],
+
+    // ── VIDEO PLACEHOLDER ──────────────────────────────
+    // Replace the empty string with the family video path
+    // Example: video: 'assets/videos/family.mp4',
+    video: 'assets/videos/Family.mp4',    // ← PUT FAMILY VIDEO PATH HERE
+    vTitle: 'A Message from the Family 💛',
+    vSub: 'Family Video',
+    reactions: { '❤️': 52, '😭': 28 },
+  },
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let activeId  = null;
+let activeVid = null;
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('splash-name').textContent = BDAY_NAME;
+  document.getElementById('splash-badge').textContent = CONTACTS.reduce((a,c) => a + c.unread, 0);
+  spawnConfetti();
+});
+
+/* ══════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════ */
+function spawnConfetti() {
+  const wrap   = document.getElementById('confetti');
+  const colors = ['#ff4fa0','#c77dff','#f5c842','#ff85bc','#3ddc84','#00cfff'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    const sz = [5,7,9,6,8][i % 5];
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${sz}px; height:${sz*(Math.random()>.5?1:2.2)}px;
+      background:${colors[i%colors.length]};
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      animation-duration:${6+Math.random()*8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    wrap.appendChild(p);
+  }
+}
+
+/* ══════════════════════════════════════════
+   SPLASH
+══════════════════════════════════════════ */
+function startExperience() {
+  document.getElementById('splash').classList.add('exit');
+  const music = document.getElementById('bg-music');
+  music.play().catch(()=>{});
+  document.getElementById('music-pill').classList.add('on');
+  setTimeout(() => document.getElementById('splash').classList.add('hidden'), 850);
+  renderList();
+}
+
+/* ══════════════════════════════════════════
+   MUSIC
+══════════════════════════════════════════ */
+function toggleMusic() {
+  const m = document.getElementById('bg-music');
+  const p = document.getElementById('music-pill');
+  if (m.paused) { m.play().catch(()=>{}); p.classList.add('on'); }
+  else          { m.pause(); p.classList.remove('on'); }
+}
+
+/* ══════════════════════════════════════════
+   RENDER CONTACTS
+══════════════════════════════════════════ */
+function renderList(filter = '') {
+  const list = document.getElementById('contacts-list');
+  const filtered = CONTACTS.filter(c =>
+    c.name.toLowerCase().includes(filter.toLowerCase()) ||
+    c.relation.toLowerCase().includes(filter.toLowerCase())
+  );
+  list.innerHTML = '';
+
+  if (!filtered.length) {
+    list.innerHTML = `<li style="text-align:center;padding:40px;color:var(--txt-muted);font-size:14px;">No messages found</li>`;
+    return;
+  }
+
+  filtered.forEach((c, i) => {
+    const li = document.createElement('li');
+    li.className = `chat-item${c.unread ? ' unread' : ''}`;
+    li.style.animationDelay = `${i * 70}ms`;
+    li.setAttribute('role', 'listitem');
+    li.tabIndex = 0;
+    li.setAttribute('aria-label', `Open conversation with ${c.name}`);
+
+    li.innerHTML = `
+      <div class="av-wrap" style="width:54px;height:54px;flex-shrink:0;">
+        <div class="av-ring"></div>
+        <div class="av" data-av="${c.id}" style="width:54px;height:54px;background:linear-gradient(135deg,${c.gradA},${c.gradB})">
+          ${c.initials}
+        </div>
+        ${c.online ? '<div class="av-online"></div>' : ''}
+      </div>
+      <div class="chat-meta">
+        <div class="chat-meta-top">
+          <span class="chat-meta-name">${c.name}</span>
+          <span class="chat-meta-time">${c.time}</span>
+        </div>
+        <div class="chat-meta-preview">
+          <span class="vtag">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+            </svg>
+            Video message
+          </span>
+        </div>
+        <span class="rel-tag" style="background:${c.relColor}22;color:${c.relColor};border:1px solid ${c.relColor}44">${c.relation}</span>
+      </div>
+      ${c.unread ? `<div class="unread-badge" aria-label="${c.unread} unread">${c.unread}</div>` : ''}
+    `;
+
+    // Try loading real avatar image
+    tryLoadAvatar(c, li.querySelector(`[data-av="${c.id}"]`));
+
+    const open = () => openChat(c.id);
+    li.addEventListener('click', open);
+    li.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') open(); });
+    list.appendChild(li);
+  });
+}
+
+function tryLoadAvatar(c, el) {
+  if (!c.avatar || !el) return;
+  const img = new Image();
+  img.onload = () => {
+    el.textContent = '';
+    const i = document.createElement('img');
+    i.src = c.avatar;
+    i.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+    i.alt = c.name;
+    el.appendChild(i);
+  };
+  img.src = c.avatar;
+}
+
+function filterContacts(v) { renderList(v.trim()); }
+
+/* ══════════════════════════════════════════
+   OPEN CHAT
+══════════════════════════════════════════ */
+function openChat(id) {
+  const c = CONTACTS.find(x => x.id === id);
+  if (!c) return;
+  activeId = id;
+  c.unread = 0;
+  renderList(document.getElementById('search-input').value);
+
+  // Header
+  document.getElementById('chat-name').textContent = c.name;
+  const av = document.getElementById('chat-av');
+  av.style.background = `linear-gradient(135deg,${c.gradA},${c.gradB})`;
+  av.textContent = c.initials;
+  tryLoadAvatar(c, av);
+
+  // Messages
+  const area = document.getElementById('msg-area');
+  area.innerHTML = '';
+  const sep = document.createElement('div');
+  sep.className = 'date-sep';
+  sep.textContent = 'Today · Your Birthday 🎂';
+  area.appendChild(sep);
+
+  buildMessages(c, area);
+
+  // Slide in
+  document.getElementById('list-screen').classList.add('off');
+  document.getElementById('chat-screen').classList.add('on');
+  setTimeout(() => document.getElementById('reply-input').focus(), 520);
+}
+
+/* ══════════════════════════════════════════
+   BUILD MESSAGES
+══════════════════════════════════════════ */
+function buildMessages(c, area) {
+  const typing = document.createElement('div');
+  typing.className = 'typing';
+  typing.innerHTML = '<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>';
+  area.appendChild(typing);
+
+  const baseDelay = 700;
+
+  c.msgs.forEach((msg, i) => {
+    setTimeout(() => {
+      if (i === c.msgs.length - 1) typing.remove();
+
+      const wrap = document.createElement('div');
+      wrap.className = `bubble ${msg.from}`;
+      wrap.innerHTML = `
+        <div class="btext">${escHtml(msg.text)}</div>
+        <div class="bmeta">
+          <span>${now12()}</span>
+          ${msg.from==='me'?'<span style="color:var(--pink-soft)">✓✓</span>':''}
+        </div>
+      `;
+      area.appendChild(wrap);
+      area.scrollTop = area.scrollHeight;
+
+      if (i === c.msgs.length - 1) {
+        setTimeout(() => {
+          const vwrap = document.createElement('div');
+          vwrap.className = 'bubble them';
+          vwrap.style.maxWidth = 'min(300px,86vw)';
+          vwrap.appendChild(buildVideoCard(c));
+          const vmeta = document.createElement('div');
+          vmeta.className = 'bmeta';
+          vmeta.innerHTML = `<span>${now12()}</span>`;
+          vwrap.appendChild(vmeta);
+          area.appendChild(vwrap);
+          area.scrollTop = area.scrollHeight;
+        }, 550);
+      }
+    }, baseDelay + msg.delay);
+  });
+}
+
+/* ══════════════════════════════════════════
+   VIDEO CARD
+══════════════════════════════════════════ */
+function buildVideoCard(c) {
+  const card = document.createElement('div');
+  card.className = 'vcard';
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = 'vcard-header';
+  hdr.innerHTML = `
+    <div class="vcard-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+      </svg>
+    </div>
+    <div class="vcard-info">
+      <p class="vcard-title">${c.vTitle}</p>
+      <p class="vcard-sub">${c.vSub}</p>
+    </div>
+  `;
+
+  // Player
+  const player = document.createElement('div');
+  player.className = 'player';
+
+  // ── If no video path is set yet, show a placeholder ──
+  if (!c.video) {
+    const ph = document.createElement('div');
+    ph.className = 'video-placeholder';
+    ph.innerHTML = `
+      <div class="ph-icon">🎬</div>
+      <p class="ph-title">Video not added yet</p>
+      <p class="ph-hint">
+        Find <code>${c.name}</code> in the <code>CONTACTS</code> array
+        and set <code>video:</code> to your file path.<br><br>
+        e.g. <code>'assets/videos/${c.name.toLowerCase()}.mp4'</code>
+      </p>
+    `;
+    player.appendChild(ph);
+    card.append(hdr, player);
+    return card;
+  }
+
+  const video = document.createElement('video');
+  video.src = c.video;
+  video.preload = 'metadata';
+  video.playsInline = true;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'player-overlay';
+
+  const playIcon = document.createElement('div');
+  playIcon.className = 'play-icon';
+  setPlayIcon(playIcon, 'play');
+  overlay.appendChild(playIcon);
+
+  const ctrls = document.createElement('div');
+  ctrls.className = 'player-ctrls';
+
+  const prog = document.createElement('div');
+  prog.className = 'prog';
+  const fill = document.createElement('div');
+  fill.className = 'prog-fill';
+  prog.appendChild(fill);
+
+  const timeLbl = document.createElement('span');
+  timeLbl.className = 'time-lbl';
+  timeLbl.textContent = '0:00';
+
+  const fsBtn = document.createElement('button');
+  fsBtn.className = 'fs-btn';
+  fsBtn.setAttribute('aria-label', 'Fullscreen');
+  fsBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+    <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+  </svg>`;
+
+  ctrls.append(prog, timeLbl, fsBtn);
+  player.append(video, overlay, ctrls);
+
+  // ── Player events ──
+  player.addEventListener('click', () => {
+    if (activeVid && activeVid !== video) {
+      activeVid.pause();
+      activeVid.closest('.player')?.classList.remove('playing');
+    }
+    if (video.paused) {
+      video.play().catch(()=>{});
+      player.classList.add('playing');
+      setPlayIcon(playIcon, 'pause');
+      activeVid = video;
+    } else {
+      video.pause();
+      player.classList.remove('playing');
+      setPlayIcon(playIcon, 'play');
+    }
+  });
+
+  video.addEventListener('timeupdate', () => {
+    const pct = video.duration ? (video.currentTime / video.duration) * 100 : 0;
+    fill.style.width = `${pct}%`;
+    timeLbl.textContent = `${fmt(video.currentTime)} / ${fmt(video.duration)}`;
+  });
+
+  prog.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!video.duration) return;
+    const r = prog.getBoundingClientRect();
+    video.currentTime = ((e.clientX - r.left) / r.width) * video.duration;
+  });
+
+  video.addEventListener('ended', () => {
+    player.classList.remove('playing');
+    fill.style.width = '0%';
+    setPlayIcon(playIcon, 'replay');
+    activeVid = null;
+  });
+
+  fsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (video.requestFullscreen) video.requestFullscreen();
+    else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+  });
+
+  // Reactions
+  const footer = document.createElement('div');
+  footer.className = 'vcard-footer';
+  const localReactions = { ...c.reactions };
+
+  Object.entries(localReactions).forEach(([emoji, count]) => {
+    const btn = document.createElement('button');
+    btn.className = 'react-btn';
+    btn.dataset.emoji = emoji;
+    btn.innerHTML = `${emoji} <span class="react-count">${count}</span>`;
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('liked');
+      const span = btn.querySelector('.react-count');
+      const liked = btn.classList.contains('liked');
+      localReactions[emoji] = c.reactions[emoji] + (liked ? 1 : 0);
+      span.textContent = localReactions[emoji];
+      if (liked) showToast(`You reacted ${emoji}`);
+    });
+    footer.appendChild(btn);
+  });
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'save-btn';
+  saveBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Save`;
+  saveBtn.addEventListener('click', () => showToast('💾 Saved to gallery!'));
+  footer.appendChild(saveBtn);
+
+  card.append(hdr, player, footer);
+  return card;
+}
+
+function setPlayIcon(el, state) {
+  const icons = {
+    play:   `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+    pause:  `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`,
+    replay: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.96"/></svg>`,
+  };
+  el.innerHTML = icons[state] || icons.play;
+}
+
+/* ══════════════════════════════════════════
+   CLOSE CHAT
+══════════════════════════════════════════ */
+function closeChat() {
+  if (activeVid) {
+    activeVid.pause();
+    activeVid.closest('.player')?.classList.remove('playing');
+    activeVid = null;
+  }
+  document.getElementById('list-screen').classList.remove('off');
+  document.getElementById('chat-screen').classList.remove('on');
+  activeId = null;
+}
+
+/* ══════════════════════════════════════════
+   REPLY
+══════════════════════════════════════════ */
+function sendReply() {
+  const input = document.getElementById('reply-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  const area = document.getElementById('msg-area');
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble me';
+  wrap.innerHTML = `
+    <div class="btext">${escHtml(text)}</div>
+    <div class="bmeta" style="justify-content:flex-end;">
+      <span>${now12()}</span>
+      <span style="color:var(--pink-soft)">✓✓</span>
+    </div>
+  `;
+  area.appendChild(wrap);
+  area.scrollTop = area.scrollHeight;
+  input.value = '';
+  showToast('💌 Reaction sent!');
+}
+
+function handleKey(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); } }
+
+/* ══════════════════════════════════════════
+   SHARE
+══════════════════════════════════════════ */
+function shareChat() {
+  if (navigator.share) {
+    navigator.share({ title:'Birthday Messages', text:'Check out these special birthday messages!' }).catch(()=>{});
+  } else {
+    showToast('📎 Link copied!');
+  }
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+let toastT;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+function fmt(s) {
+  if (!s || isNaN(s)) return '0:00';
+  return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+}
+function now12() {
+  return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Swipe-back gesture ── */
+let sx=0, sy=0;
+document.getElementById('chat-screen').addEventListener('touchstart', e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+document.getElementById('chat-screen').addEventListener('touchend',  e=>{
+  const dx=e.changedTouches[0].clientX-sx, dy=Math.abs(e.changedTouches[0].clientY-sy);
+  if(dx>80&&dy<60) closeChat();
+},{passive:true});
+</script>
+</body>
+</html>
